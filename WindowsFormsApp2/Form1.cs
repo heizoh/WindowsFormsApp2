@@ -27,7 +27,7 @@ namespace WindowsFormsApp2
         private int W;
         private int H;
 
-        public BlockingCollection<IntPtr> bcTasks = new BlockingCollection<IntPtr>(); 
+        public BlockingCollection<IntPtr> bcTasks = new BlockingCollection<IntPtr>();
 
         private void Button1_Click(object sender, EventArgs e)
         {
@@ -70,22 +70,37 @@ namespace WindowsFormsApp2
 
                 using (Graphics G = Graphics.FromImage(pictureBox12.Image))
                 {
-                    for (int i = 0; i < 10; i++)
+                    using (Graphics G2 = Graphics.FromImage(pictureBox3.Image))
                     {
-                        IntPtr data = bcTasks.Take();
-                        Bitmap tmpBM = new Bitmap(W, H, PixelFormat.Format24bppRgb);
-                        BitmapData tmpBD = tmpBM.LockBits(rect, ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
-                        IntPtr t = tmpBD.Scan0;
-                        CL.MoveMemory(data, ref t, (uint)(W * H * 3));
-                        tmpBM.UnlockBits(tmpBD);
+                        for (int i = 0; i < 10; i++)
+                        {
+                            IntPtr data = bcTasks.Take();
+                            Bitmap tmpBM = new Bitmap(W, H, PixelFormat.Format24bppRgb);
+                            BitmapData tmpBD = tmpBM.LockBits(rect, ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+                            IntPtr t = tmpBD.Scan0;
+                            CL.MoveMemory(data, ref t, (uint)(W * H * 3));
+                            tmpBM.UnlockBits(tmpBD);
 
-                        G.DrawImage(tmpBM, W * (i % 5), H * (i / 5), W, H);
-                        Console.WriteLine($"{i + 1}番目タスク処理");
+                            G.DrawImage(tmpBM, W * (i % 5), H * (i / 5), W, H);
+
+
+                            tmpBD = tmpBM.LockBits(rect, ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+                            t = tmpBD.Scan0;
+                            CL.MoveMemory(data, ref t, (uint)(W * H * 3));
+                            tmpBM.UnlockBits(tmpBD);
+
+                            G2.DrawImage(tmpBM, W * (i % 3), H * (i / 3), W, H);
+
+                            Console.WriteLine($"{i + 1}番目タスク処理");
+                        }
                     }
                 }
 
-                pictureBox12.Refresh();
-
+                Invoke((MethodInvoker)delegate
+                {
+                    pictureBox12.Refresh();
+                    pictureBox3.Refresh();
+                });
             });
 
 
@@ -112,16 +127,8 @@ namespace WindowsFormsApp2
             W = pictureBox1.Width;
             H = pictureBox1.Height;
             pictureBox12.Image = new Bitmap(W * 5, H * 2);
+            pictureBox3.Image = new Bitmap(W * 3, H * 4);
         }
 
-        private Bitmap BuildImage(Bitmap src,Bitmap tmp)
-        {
-            int tmp_W = src.Width;
-            int tmp_H = src.Height;
-
-            Bitmap bmp = new Bitmap(tmp_W,tmp_H,PixelFormat.Format24bppRgb);
-
-            return bmp;
-        }
     }
 }
