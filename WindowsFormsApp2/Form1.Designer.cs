@@ -148,7 +148,6 @@
             // 
             // pictureBox12
             // 
-            this.pictureBox12.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictureBox12.Location = new System.Drawing.Point(45, 712);
             this.pictureBox12.Name = "pictureBox12";
             this.pictureBox12.Size = new System.Drawing.Size(890, 436);
